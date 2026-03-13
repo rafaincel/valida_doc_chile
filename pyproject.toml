@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "valida_doc_chile"
+version = "0.1.1"
+description = "Valida documentos de identidad de Chile"
+readme = "README.md"
+requires-python = ">=3.2"
+classifiers = [
+    "Typing :: Typed",
+    "Topic :: Utilities",
+    "Topic :: Software Development :: Libraries"
+]
+license = "MIT"
+license-files = ["LICEN[CS]E*"]
+
+[project.urls]
+Homepage = "https://github.com/rafaincel/valida_doc_chile"
+Issues = "https://github.com/rafaincel/valida_doc_chile/issues"
+
+
+[project.scripts]
+consulta = "valida_doc_chile.consulta:main"
