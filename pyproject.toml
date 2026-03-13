@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "valida_doc_chile"
-version = "0.1.1"
+version = "0.1.3"
 description = "Valida documentos de identidad de Chile"
 readme = "README.md"
 requires-python = ">=3.2"
