@@ -1,14 +1,12 @@
-#!/usr/bin/env python3
 from argparse import ArgumentParser
-from html import parser
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 from urllib.parse import urlencode
 import json
 
+
 def query(run: str, doc_num: str, doc_type: str, api_key: str = None) -> str:
-    """
-    Consulta el estado de vigencia de un documento de identidad.
+    """Consulta el estado de vigencia de un documento de identidad.
 
     :param run: Identificador de la persona (ej. "98765432-K")
     :type run: str
@@ -22,15 +20,15 @@ def query(run: str, doc_num: str, doc_type: str, api_key: str = None) -> str:
             Valores posibles:
             - VALID: el documento está vigente.
             - NOT_VALID: el documento existe, pero no está vigente
-            (vencido, bloqueado, perdido, etc.).
+              (vencido, bloqueado, perdido, etc.).
             - NO_MATCH: no se encuentra coincidencia o el documento no existe.
     :rtype: str
     """
-        
+
     data = {
         "run": run,
         "doc_num": doc_num,
-        "doc_type": doc_type
+        "doc_type": doc_type,
     }
     form_data = urlencode(data).encode("utf-8")
 
@@ -46,8 +44,8 @@ def query(run: str, doc_num: str, doc_type: str, api_key: str = None) -> str:
 
     json_data = json.loads(res)
 
-    if json_data["error"]:
-        raise RuntimeError(f"api falló: {json_data['error_code']}: {json_data['desc']}")
+    if json_data.get("error"):
+        raise RuntimeError(f"api falló: {json_data.get('error_code')}: {json_data.get('desc')}")
 
     return json_data["state"]
 
@@ -64,7 +62,7 @@ def main():
     state_messages = {
         "VALID": ("El documento está vigente.", 0),
         "NOT_VALID": ("El documento existe, pero no está vigente.", 1),
-        "NO_MATCH": ("No se encuentra coincidencia / el documento no existe.", 2)
+        "NO_MATCH": ("No se encuentra coincidencia / el documento no existe.", 2),
     }
 
     msg, ec = state_messages[state]
@@ -72,5 +70,6 @@ def main():
     print(msg)
     exit(ec)
 
+
 if __name__ == '__main__':
-    main
+    main()

@@ -22,4 +22,4 @@ Issues = "https://github.com/rafaincel/valida_doc_chile/issues"
 
 
 [project.scripts]
-consulta = "valida_doc_chile.consulta:main"
+valcl = "valida_doc_chile.consulta:main"
