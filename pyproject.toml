@@ -20,6 +20,5 @@ license-files = ["LICEN[CS]E*"]
 Homepage = "https://github.com/rafaincel/valida_doc_chile"
 Issues = "https://github.com/rafaincel/valida_doc_chile/issues"
 
-
 [project.scripts]
 valcl = "valida_doc_chile.consulta:main"
