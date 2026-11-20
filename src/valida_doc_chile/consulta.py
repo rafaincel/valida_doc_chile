@@ -1,8 +1,28 @@
+import json
 from argparse import ArgumentParser
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
-from urllib.parse import urlencode
-import json
+
+
+API_URL = "https://regcivil.impish.top/v1/query"
+VALID_STATES = {"VALID", "NOT_VALID", "NO_MATCH"}
+
+
+def _parse_response(body: str, status_code: int = 200) -> str:
+    json_data = json.loads(body)
+    if not isinstance(json_data, dict):
+        raise RuntimeError("API returned an invalid response")
+
+    if not 200 <= status_code < 300 or json_data.get("error"):
+        message = json_data.get("message") or json_data.get("detail")
+        if not isinstance(message, str):
+            message = json.dumps(message) if message is not None else "Unknown API error"
+        raise RuntimeError(f"API request failed (HTTP {status_code}): {message}")
+
+    state = json_data.get("status")
+    if not isinstance(state, str) or state not in VALID_STATES:
+        raise RuntimeError("API returned an unknown document status")
+    return state
 
 
 def query(run: str, doc_num: str, doc_type: str, api_key: str = None) -> str:
@@ -14,7 +34,7 @@ def query(run: str, doc_num: str, doc_type: str, api_key: str = None) -> str:
     :type doc_num: str
     :param doc_type: Tipo de documento: CEDULA o PASAPORTE
     :type doc_type: str
-    :param api_key: Clave de acceso a la API
+    :param api_key: Token de acceso enviado en el encabezado X-Token
     :type api_key: str, optional
     :return: Estado del documento.
             Valores posibles:
@@ -27,27 +47,26 @@ def query(run: str, doc_num: str, doc_type: str, api_key: str = None) -> str:
 
     data = {
         "run": run,
-        "doc_num": doc_num,
+        "serial_number": doc_num,
         "doc_type": doc_type,
     }
-    form_data = urlencode(data).encode("utf-8")
-
-    req = Request("https://regcivil.impish.top/query", data=form_data, method="POST")
+    req = Request(
+        API_URL,
+        data=json.dumps(data).encode("utf-8"),
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
     if api_key is not None:
-        req.add_header("X-api-key", api_key)
+        req.add_header("X-Token", api_key)
 
     try:
         with urlopen(req) as response:
             res = response.read().decode("utf-8")
     except HTTPError as e:
         res = e.read().decode("utf-8")
+        return _parse_response(res, e.code)
 
-    json_data = json.loads(res)
-
-    if json_data.get("error"):
-        raise RuntimeError(f"api falló: {json_data.get('error_code')}: {json_data.get('desc')}")
-
-    return json_data["state"]
+    return _parse_response(res)
 
 
 def main():
